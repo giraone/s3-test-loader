@@ -133,8 +133,6 @@ public class ObjectStoreTestLoaderS3 extends ObjectStoreTestLoaderBase {
 
         System.out.println("Number of existing top level containers: " + objectSummaries.size());
 
-        objectSummaries.forEach(System.out::println);
-
         final String rootContainerNameWithSlash = prefixWithBucket(rootContainerName + "/");
         S3ObjectSummary anyObjectInContainer = objectSummaries.stream().filter(c -> c.getKey().startsWith(rootContainerNameWithSlash)).findAny().orElse(null);
         return anyObjectInContainer != null;
