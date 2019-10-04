@@ -1,8 +1,11 @@
 package com.giraone.s3.common;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -11,7 +14,15 @@ import java.util.Scanner;
 /**
  * Utilities for reading JSON or text files from the class path.
  */
-public class ResourceReader {
+public class TextFileReader {
+
+    private static final Log log = LogFactory.getLog(TextFileReader.class);
+
+    // Hide instance
+    private TextFileReader() {
+
+    }
+
     /**
      * Read a text file from the resources folder (class path).
      *
@@ -19,7 +30,7 @@ public class ResourceReader {
      * @return The content of the resource file as a string.
      */
     public static String readTextFileFromResource(String resourcePath) {
-        ClassLoader classLoader = ResourceReader.class.getClassLoader();
+        ClassLoader classLoader = TextFileReader.class.getClassLoader();
         URL url = classLoader.getResource(resourcePath);
         if (url == null) {
             throw new IllegalArgumentException("Resource \"" + resourcePath + "\" not found!");
@@ -31,8 +42,8 @@ public class ResourceReader {
                 String line = scanner.nextLine();
                 result.append(line).append("\n");
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (IOException ioe) {
+            log.error("Cannot read resource file " + resourcePath, ioe);
         }
         return result.toString();
     }
@@ -45,7 +56,7 @@ public class ResourceReader {
      * @return The parsed object
      */
     public static Object readJsonFileFromResource(String resourcePath, Class<?> valueType) throws IOException {
-        ClassLoader classLoader = ResourceReader.class.getClassLoader();
+        ClassLoader classLoader = TextFileReader.class.getClassLoader();
         URL url = classLoader.getResource(resourcePath);
         if (url != null) {
             try (InputStream in = url.openStream()) {
@@ -54,6 +65,24 @@ public class ResourceReader {
             }
         } else {
             throw new IllegalStateException("No \"" + resourcePath + "\" file in class path!");
+        }
+    }
+
+    /**
+     * Read a JSON file from a file path
+     *
+     * @param file      the file to read
+     * @param valueType the to which the content is deserialized.
+     * @return The parsed object
+     */
+    public static Object readJsonFileFromPath(File file, Class<?> valueType) {
+
+        ObjectMapper mapper = new ObjectMapper();
+        try (FileInputStream in = new FileInputStream(file)) {
+            return mapper.readValue(in, valueType);
+        } catch (IOException ioe) {
+            log.error("Cannot read JSON file " + file, ioe);
+            return null;
         }
     }
 }

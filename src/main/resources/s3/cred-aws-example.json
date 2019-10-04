@@ -1,0 +1,9 @@
+{
+  "service_endpoint": "https://s3.eu-west-1.amazonaws.com",
+  "username": "ACCESS-KEY",
+  "password": "SECRET-KEY",
+  "prefix_with_bucket_name": false,
+  "bucket_for_smoke_test": "your-bucket-001",
+  "bucket_for_load_test": "your-bucket-001",
+  "folder_for_load_test": "load-0001"
+}

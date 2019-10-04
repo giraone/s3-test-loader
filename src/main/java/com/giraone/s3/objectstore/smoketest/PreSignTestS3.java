@@ -1,31 +1,24 @@
 package com.giraone.s3.objectstore.smoketest;
 
-import com.amazonaws.AmazonClientException;
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.*;
+import com.amazonaws.services.s3.model.ListObjectsV2Request;
+import com.amazonaws.services.s3.model.ListObjectsV2Result;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.giraone.s3.objectstore.authentication.Authenticator;
 import com.giraone.s3.objectstore.config.ObjectStorageEnvironment;
-import com.giraone.s3.objectstore.service.EnhancedObjectStorageService;
 
-import java.io.*;
 import java.net.URL;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Test performance of pre-signing
  */
 public class PreSignTestS3 {
 
-    //private static String resourcePath = "cred-local-minio.json";
-    private static String resourcePath = "s3/cred-aws-test.json";
+    private static String resourcePath = "s3/cred.json";
 
     private final MetricRegistry metrics = new MetricRegistry();
     private final Timer monitorSigning = metrics.timer(MetricRegistry.name(PreSignTestS3.class, "Signing"));
@@ -96,7 +89,7 @@ public class PreSignTestS3 {
     public static void main(String[] args) throws Exception {
 
         ObjectStorageEnvironment env = new ObjectStorageEnvironment();
-        env.readFromResource(resourcePath);
+        env.readFromFileOrResource(resourcePath);
         AmazonS3 s3Client = Authenticator.init(env);
 
         PreSignTestS3 test = new PreSignTestS3(s3Client);

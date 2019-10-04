@@ -4,6 +4,7 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.Timer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.giraone.s3.objectstore.config.ObjectStorageEnvironment;
+import com.giraone.s3.objectstore.smoketest.SmokeTesterS3;
 import com.giraone.s3.objectstore.testdata.DefaultDynamicConfigGenerator;
 import com.giraone.s3.objectstore.testdata.DocumentMetaData;
 import com.giraone.s3.objectstore.testdata.DynamicConfigGenerator;
@@ -15,14 +16,14 @@ import java.io.File;
 import java.util.*;
 import java.util.concurrent.*;
 
-public abstract class ObjectStoreTestLoaderBase {
+abstract class ObjectStoreTestLoaderBase {
     ObjectStorageEnvironment env;
 
     private ExecutorService executor;
 
     private PdfTestDocumentCreator pdfCreator;
-    protected TestConfig testConfig;
-    protected ResultInfo resultInfo;
+    TestConfig testConfig;
+    ResultInfo resultInfo;
 
     private final MetricRegistry metrics = new MetricRegistry();
 
@@ -52,12 +53,12 @@ public abstract class ObjectStoreTestLoaderBase {
         this.env = env;
     }
 
-    protected Map<String, String> buildObjectMetaData(DocumentMetaData metaData) {
+    Map<String, String> buildObjectMetaData(DocumentMetaData metaData) {
         Map<String, String> objectMetaDataMap = new HashMap<>();
         objectMetaDataMap.put("title", metaData.getTitle());
         objectMetaDataMap.put("uuid", metaData.getUuid());
         objectMetaDataMap.put("date", new Date(metaData.getTime()).toString());
-        metaData.getMetaData().forEach((key,value) -> objectMetaDataMap.put(key, value));
+        metaData.getMetaData().forEach(objectMetaDataMap::put);
         return objectMetaDataMap;
     }
 
@@ -97,28 +98,24 @@ public abstract class ObjectStoreTestLoaderBase {
         long start = System.currentTimeMillis();
 
         // Create a list to hold the Future objects associated with Callable
-        List<Future<Integer>> resultList = new ArrayList<Future<Integer>>();
+        List<Future<Integer>> resultList = new ArrayList<>();
 
         for (int containerIndex = 0; containerIndex < (numberOfContainers == 0 ? 1 : numberOfContainers); containerIndex++) {
             final int finalContainerIndex = containerIndex;
             final int[] documentIndex = new int[]{0};
 
-            Callable<Integer> callable = new Callable<Integer>() {
-
-                @Override
-                public Integer call() throws Exception {
-                    printState(" fillContainer START " + finalContainerIndex);
-                    int count = 0;
-                    while (documentIndex[0] < testConfig.getNumberOfDocumentsPerContainer()) {
-                        documentIndex[0] = ++documentIndex[0];
-                        if (!createDocument(defaultContainerName, numberOfContainers == 0 ? -1 : finalContainerIndex, documentIndex[0])) {
-                            break;
-                        }
-                        count++;
+            Callable<Integer> callable = () -> {
+                printState(" fillContainer START " + finalContainerIndex);
+                int count = 0;
+                while (documentIndex[0] < testConfig.getNumberOfDocumentsPerContainer()) {
+                    documentIndex[0] = ++documentIndex[0];
+                    if (!createDocument(defaultContainerName, numberOfContainers == 0 ? -1 : finalContainerIndex, documentIndex[0])) {
+                        break;
                     }
-                    printState(" fillContainer END  " + finalContainerIndex);
-                    return count;
+                    count++;
                 }
+                printState(" fillContainer END  " + finalContainerIndex);
+                return count;
             };
 
             // Submit Callable tasks to be executed by thread pool
@@ -170,7 +167,7 @@ public abstract class ObjectStoreTestLoaderBase {
         return ret;
     }
 
-    protected void run(TestConfig testConfig, ObjectStorageEnvironment env) {
+    void run(TestConfig testConfig, ObjectStorageEnvironment env) {
         this.setTestConfig(testConfig);
 
         this.setEnv(env);
@@ -182,7 +179,8 @@ public abstract class ObjectStoreTestLoaderBase {
 
         // Create no containers, but only documents in a certain container
         if (!this.checkRootContainer(testConfig.getRootContainerName())) {
-            throw new IllegalArgumentException("No root container \"" + testConfig.getRootContainerName() + "\"!");
+            throw new IllegalArgumentException("No root container \"" + testConfig.getRootContainerName()
+                    + "\" in bucket \"" + testConfig.getBucketName() + "\"!");
         }
 
         // Create n container and then m documents
@@ -194,19 +192,26 @@ public abstract class ObjectStoreTestLoaderBase {
 
     // ---------------------------------------------------------------------------------
 
-    protected DocumentMetaData parseFile(File jsonFile) throws Exception {
+    DocumentMetaData parseFile(File jsonFile) throws Exception {
         final ObjectMapper mapper = new ObjectMapper();
         return mapper.readValue(jsonFile, DocumentMetaData.class);
     }
 
     // ---------------------------------------------------------------------------------
 
-    protected static TestConfig parseCli(String[] args) {
+    static TestConfig parseCli(String[] args) {
         CommandLineParser parser = new DefaultParser();
 
         Options options = new Options();
 
         options.addOption("h", "help", false, "print usage help");
+
+        Option runClass = Option.builder()
+                .longOpt("run")
+                .hasArg()
+                .desc("the test to run - [test-loader|smoke-tester] - Default = test-loader")
+                .build();
+        options.addOption(runClass);
 
         Option numberOfThreadsOption = Option.builder()
                 .longOpt("threads")
@@ -250,6 +255,13 @@ public abstract class ObjectStoreTestLoaderBase {
                 .build();
         options.addOption(configClassOption);
 
+        Option propertiesOption = Option.builder()
+                .longOpt("properties")
+                .hasArg()
+                .desc("JSON properties for URL, bucket name, credentials, ...")
+                .build();
+        options.addOption(propertiesOption);
+
         TestConfig testConfig = new TestConfig();
 
         try {
@@ -260,9 +272,21 @@ public abstract class ObjectStoreTestLoaderBase {
                 System.exit(1);
             }
 
+            String runnerClassName = line.getOptionValue("run", "test-loader");
+            Class runnerClass;
+            if ("smoke-tester".equalsIgnoreCase(runnerClassName)) {
+                runnerClass = ObjectStoreTestLoaderS3.class;
+            } else {
+                runnerClass = SmokeTesterS3.class;
+            }
+            testConfig.setTestRunner(runnerClass);
+
+            testConfig.setPropertiesPath(line.getOptionValue("properties", "res:s3/cred.json"));
+
             String configClassName = line.getOptionValue("config", DefaultDynamicConfigGenerator.class.getCanonicalName());
             DynamicConfigGenerator dynamicConfigGenerator = (DynamicConfigGenerator) Class.forName(configClassName).newInstance();
             testConfig.setDynamicConfigGenerator(dynamicConfigGenerator);
+
             testConfig.setBucketName(line.getOptionValue("bucket"));
             testConfig.setRootContainerName(line.getOptionValue("root", ""));
             testConfig.setNumberOfContainers(Integer.parseInt(line.getOptionValue("containers", "0")));
@@ -286,13 +310,13 @@ public abstract class ObjectStoreTestLoaderBase {
         formatter.printHelp("java -jar target/testdata-loader-1.0.jar\n", options);
     }
 
-    protected static void printMonitorData(Timer timer, String name) {
+    private static void printMonitorData(Timer timer, String name) {
         System.out.println("* " + name);
         System.out.println("* Count   = " + timer.getCount());
         System.out.println("* Average = " + timer.getMeanRate() + " msecs");
     }
 
-    protected static void printState(String name) {
+    static void printState(String name) {
         System.out.print("------- ");
         System.out.print(name);
         System.out.println(" ---------");

@@ -1,5 +1,14 @@
 package com.giraone.s3.objectstore.testloader;
 
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.*;
+import com.codahale.metrics.Timer;
+import com.giraone.s3.objectstore.authentication.Authenticator;
+import com.giraone.s3.objectstore.config.ObjectStorageEnvironment;
+import com.giraone.s3.objectstore.testdata.DocumentMetaData;
+import com.giraone.s3.objectstore.testdata.TestConfig;
+
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -7,25 +16,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.ListObjectsRequest;
-import com.amazonaws.services.s3.model.ObjectListing;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.PutObjectResult;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.codahale.metrics.Timer;
-
-import com.giraone.s3.objectstore.authentication.Authenticator;
-import com.giraone.s3.objectstore.config.ObjectStorageEnvironment;
-import com.giraone.s3.objectstore.testdata.DocumentMetaData;
-import com.giraone.s3.objectstore.testdata.TestConfig;
-
 public class ObjectStoreTestLoaderS3 extends ObjectStoreTestLoaderBase {
-
-    //private static String resourcePath = "cred-local-minio.json";
-    private static String resourcePath = "s3/cred-aws-test.json";
 
     private ThreadLocal<AmazonS3> objectStorageService = new ThreadLocal<>();
 
@@ -131,10 +122,12 @@ public class ObjectStoreTestLoaderS3 extends ObjectStoreTestLoaderBase {
 
     boolean checkRootContainer(String rootContainerName) {
 
-        System.err.println("checkRootContainer " + rootContainerName + " " + this.testConfig.getBucketName());
+        String checkedName = prefixWithBucket(rootContainerName + "/");
+        System.out.println("checkRootContainer " + rootContainerName + " in bucket " + this.testConfig.getBucketName()
+            + " using path \"" + checkedName + "\"");
         ListObjectsRequest request = new ListObjectsRequest()
                 .withBucketName(this.testConfig.getBucketName())
-                .withPrefix(prefixWithBucket(rootContainerName + "/"));
+                .withPrefix(checkedName);
         ObjectListing objectListing = this.getObjectStorageService().listObjects(request);
         List<S3ObjectSummary> objectSummaries = objectListing.getObjectSummaries();
 
@@ -166,8 +159,13 @@ public class ObjectStoreTestLoaderS3 extends ObjectStoreTestLoaderBase {
         }
 
         ObjectStorageEnvironment env = new ObjectStorageEnvironment();
-        env.readFromResource(resourcePath);
+        env.readFromFileOrResource(testConfig.getPropertiesPath());
         System.out.println(env.toJsonString());
+
+        if ("ObjectStoreTestLoaderS3".equalsIgnoreCase(testConfig.getTestRunner().getSimpleName())) {
+            testConfig.getTestRunner().getMethod("run", new Class[] { TestConfig.class}).invoke(testConfig);
+            return;
+        }
 
         if (testConfig.getBucketName() == null || testConfig.getBucketName().trim().equals("")) {
             testConfig.setBucketName(env.getServiceProperties().getBucketForLoadTest());

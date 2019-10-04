@@ -3,10 +3,12 @@ package com.giraone.s3.objectstore.smoketest;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.S3ClientOptions;
 import com.amazonaws.services.s3.model.*;
 import com.giraone.s3.objectstore.authentication.Authenticator;
 import com.giraone.s3.objectstore.config.ObjectStorageEnvironment;
 import com.giraone.s3.objectstore.config.ServiceProperties;
+import com.giraone.s3.objectstore.testdata.TestConfig;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.http.HttpResponse;
@@ -25,18 +27,18 @@ import java.util.*;
 
 /*
  * Minio Experience
+ * - The region "default" is needed
  * - Folders need / at the end
- * - The object key must include the bucket name as a prefix with bucketName/objectKey
+ * - The object key must include the bucket name as a prefix with bucketName/objectKey - NOT IN NEWER VERSIONS!
  * - Minio uses Base64 encoded content MD5 digest
  * - Minio ListObject does not list directory/folder
  * - Some feature work only, if .withChunkedEncodingDisabled(true) is used.
+ * - Signature V4 should work with path style
  *
  * AWS S3 Experience
+ * - Works out-of-the-box
  */
 public class SmokeTesterS3 {
-
-    //private static String resourcePath = "cred-local-minio.json";
-    private static String resourcePath = "s3/cred-aws-test.json";
 
     private AmazonS3 s3Client;
     private ServiceProperties serviceProperties;
@@ -97,10 +99,10 @@ public class SmokeTesterS3 {
         deleteTestObjects(testObjectsPrefix);
     }
 
-    public static void main(String[] args) throws Exception {
+    public static void run(TestConfig testConfig) throws Exception {
 
         ObjectStorageEnvironment env = new ObjectStorageEnvironment();
-        env.readFromResource(resourcePath);
+        env.readFromFileOrResource(testConfig.getPropertiesPath());
 
         AmazonS3 s3Client = Authenticator.init(env);
         ServiceProperties serviceProperties = env.getServiceProperties();
@@ -121,6 +123,12 @@ public class SmokeTesterS3 {
         }
 
         tester.testAll();
+    }
+
+    public static void main(String[] args) throws Exception {
+
+       TestConfig testConfig = new TestConfig();
+       run(testConfig);
     }
 
     private void createBucket() {
@@ -163,7 +171,6 @@ public class SmokeTesterS3 {
 
     private void showBucketVersioningConfiguration() {
         try {
-            printTestCase("Show bucket versioning");
 
             BucketVersioningConfiguration conf = s3Client.getBucketVersioningConfiguration(bucketName);
             System.out.println(" - was " + conf.getStatus());
@@ -243,6 +250,7 @@ public class SmokeTesterS3 {
             ListObjectsRequest request = new ListObjectsRequest()
                     .withBucketName(bucketName)
                     .withPrefix(prefixWithBucket(prefix))
+                    //.withEncodingType("url")
                     .withMaxKeys(20);
 
             ObjectListing objects = s3Client.listObjects(request);

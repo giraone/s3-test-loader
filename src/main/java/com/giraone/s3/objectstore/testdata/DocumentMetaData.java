@@ -1,8 +1,8 @@
 package com.giraone.s3.objectstore.testdata;
 
-import java.util.HashMap;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+import java.util.HashMap;
 
 /**
  * Value object class / model class for the meta data of a Swift or S3 "Object" (in our case a document).

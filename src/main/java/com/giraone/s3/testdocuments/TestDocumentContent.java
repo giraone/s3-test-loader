@@ -1,10 +1,10 @@
 package com.giraone.s3.testdocuments;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.UUID;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * Model data class used to generate the PDF content of test documents.

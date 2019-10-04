@@ -1,0 +1,7 @@
+{
+  "service_endpoint": "http://localhost:9000",
+  "project": "",
+  "username": "user",
+  "password": "password",
+  "prefix_with_bucket_name": true
+}

@@ -1,11 +1,11 @@
 package com.giraone.s3.objectstore.testdata;
 
+import com.giraone.s3.testdocuments.TestDocumentContent;
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Random;
-
-import com.giraone.s3.testdocuments.TestDocumentContent;
 
 public class DefaultDynamicConfigGenerator implements DynamicConfigGenerator {
     static int MilliSecondsOfAYear = 1000 * 3600 * 24 * 365;

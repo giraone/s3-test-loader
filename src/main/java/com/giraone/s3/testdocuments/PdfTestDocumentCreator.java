@@ -1,16 +1,12 @@
 package com.giraone.s3.testdocuments;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.giraone.s3.objectstore.testdata.DynamicConfigGenerator;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
+
+import java.io.*;
 
 /**
  * A simple PDF document generator.

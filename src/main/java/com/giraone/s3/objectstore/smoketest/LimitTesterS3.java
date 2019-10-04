@@ -22,8 +22,7 @@ import java.util.Map;
  */
 public class LimitTesterS3 {
 
-    //private static String resourcePath = "cred-local-minio.json";
-    private static String resourcePath = "s3/cred-aws-test.json";
+    private static String resourcePath = "s3/cred.json";
 
     private final boolean TRACE = false;
     private final MetricRegistry metrics = new MetricRegistry();
@@ -372,7 +371,7 @@ Average = 34.009637049888084 msecs
     public static void main(String[] args) throws Exception {
 
         ObjectStorageEnvironment env = new ObjectStorageEnvironment();
-        env.readFromResource(resourcePath);
+        env.readFromFileOrResource(resourcePath);
 
         LimitTesterS3 limitTester = new LimitTesterS3();
         limitTester.setEnv(env);

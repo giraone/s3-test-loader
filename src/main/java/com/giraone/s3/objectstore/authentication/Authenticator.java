@@ -8,7 +8,6 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-
 import com.giraone.s3.objectstore.config.ObjectStorageEnvironment;
 import com.giraone.s3.objectstore.config.ServiceProperties;
 
@@ -29,6 +28,12 @@ public class Authenticator {
             clientConfiguration.setProxyHost("localhost");
             clientConfiguration.setProxyPort(8080);
         }
+
+        /*
+        if (serviceProperties.isSignerOverwrite()) {
+            clientConfiguration.setSignerOverride("S3SignerType");
+        }
+        */
 
         return AmazonS3ClientBuilder
                 .standard()
