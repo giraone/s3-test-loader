@@ -82,7 +82,7 @@ public class TextFileReader {
             return mapper.readValue(in, valueType);
         } catch (IOException ioe) {
             log.error("Cannot read JSON file " + file, ioe);
-            return null;
+            throw new IllegalStateException(ioe);
         }
     }
 }

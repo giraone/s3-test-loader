@@ -74,8 +74,8 @@ abstract class ObjectStoreTestLoaderBase {
         File jsonFile = filePair.jsonFile;
         File pdfFile = filePair.pdfFile;
 
-        String etag = this.createDocument(rootContainerName, containerName + "/" + objectPath, jsonFile, pdfFile);
-        if (etag != null) {
+        String eTag = this.createDocument(rootContainerName, containerName + "/" + objectPath, jsonFile, pdfFile);
+        if (eTag != null) {
             resultInfo.addDocumentResultOk();
         } else {
             resultInfo.addDocumentResultError(1, "failed");

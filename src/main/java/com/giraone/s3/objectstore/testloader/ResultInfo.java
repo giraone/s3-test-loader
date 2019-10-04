@@ -1,16 +1,17 @@
 package com.giraone.s3.objectstore.testloader;
 
 public class ResultInfo {
-    int numberOfContainers;
-    int numberOfDocumentsPerContainer;
 
-    int numberOfContainersCreated;
-    int numberOfDocumentsCreated;
+    private int numberOfContainers;
+    private int numberOfDocumentsPerContainer;
 
-    int lastErrorCode;
-    String lastError;
+    private int numberOfContainersCreated;
+    private int numberOfDocumentsCreated;
 
-    public ResultInfo(int numberOfContainers, int numberOfDocumentsPerContainer) {
+    private int lastErrorCode;
+    private String lastError;
+
+    ResultInfo(int numberOfContainers, int numberOfDocumentsPerContainer) {
         super();
 
         this.numberOfContainers = numberOfContainers;
@@ -46,20 +47,20 @@ public class ResultInfo {
     }
 
 
-    public void addContainerResultOk() {
+    void addContainerResultOk() {
         numberOfContainersCreated++;
     }
 
-    public void addContainerResultError(int code, String fault) {
+    void addContainerResultError(int code, String fault) {
         lastErrorCode = code;
         lastError = fault;
     }
 
-    public void addDocumentResultOk() {
+    void addDocumentResultOk() {
         numberOfDocumentsCreated++;
     }
 
-    public void addDocumentResultError(int code, String fault) {
+    void addDocumentResultError(int code, String fault) {
         lastErrorCode = code;
         lastError = fault;
     }

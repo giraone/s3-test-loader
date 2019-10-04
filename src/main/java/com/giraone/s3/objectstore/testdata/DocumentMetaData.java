@@ -9,11 +9,12 @@ import java.util.HashMap;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class DocumentMetaData {
-    String uuid;
-    long time;
-    long counter;
-    String title;
-    HashMap<String, String> metaData;
+
+    private String uuid;
+    private long time;
+    private long counter;
+    private String title;
+    private HashMap<String, String> metaData;
 
     public DocumentMetaData() {
         super();

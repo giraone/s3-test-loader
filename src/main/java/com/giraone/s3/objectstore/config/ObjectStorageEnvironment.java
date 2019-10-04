@@ -30,13 +30,4 @@ public class ObjectStorageEnvironment {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this.serviceProperties);
     }
-	
-	/*
-    public static void main(String[] args) throws Exception
-    {
-    	ObjectStorageEnvironment env = new ObjectStorageEnvironment();
-    	env.parse("...");
-    	System.out.println(env.toJsonString());
-    }
-    */
 }

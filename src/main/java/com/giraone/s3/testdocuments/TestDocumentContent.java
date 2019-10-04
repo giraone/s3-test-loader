@@ -10,14 +10,15 @@ import java.util.UUID;
  * Model data class used to generate the PDF content of test documents.
  */
 public class TestDocumentContent {
-    String uuid;
-    long timeStamp;
-    long counter;
-    String title;
-    HashMap<String, String> metaData;
+
+    private String uuid;
+    private long timeStamp;
+    private long counter;
+    private String title;
+    private HashMap<String, String> metaData;
 
     @JsonIgnore
-    String text;
+    private String text;
 
     public TestDocumentContent(long counter, String title, long time, HashMap<String, String> metaData) {
         super();

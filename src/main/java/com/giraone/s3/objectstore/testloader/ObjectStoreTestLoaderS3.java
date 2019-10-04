@@ -159,6 +159,7 @@ public class ObjectStoreTestLoaderS3 extends ObjectStoreTestLoaderBase {
         }
 
         ObjectStorageEnvironment env = new ObjectStorageEnvironment();
+        System.out.println(testConfig.getPropertiesPath());
         env.readFromFileOrResource(testConfig.getPropertiesPath());
         System.out.println(env.toJsonString());
 

@@ -12,8 +12,9 @@ import java.io.*;
  * A simple PDF document generator.
  */
 public class PdfTestDocumentCreator {
-    DynamicConfigGenerator dynamicConfigGenerator;
-    File rootDir = new File(System.getProperty("java.io.tmpdir"));
+
+    private DynamicConfigGenerator dynamicConfigGenerator;
+    private File rootDir = new File(System.getProperty("java.io.tmpdir"));
 
     public PdfTestDocumentCreator(DynamicConfigGenerator dynamicConfigGenerator) {
         super();
@@ -43,31 +44,27 @@ public class PdfTestDocumentCreator {
             return null;
         }
 
-        if (this.createPdfFile(pdfFile, content)) {
-            if (this.createMetaDataFile(metaDataFile, content)) {
-                return new FilePair(metaDataFile, pdfFile);
-            }
+        if (this.createPdfFile(pdfFile, content) && this.createMetaDataFile(metaDataFile, content)) {
+            return new FilePair(metaDataFile, pdfFile);
         }
         return null;
     }
 
-    public int run(int containerIndex, int documentStartIndex, int numberOfFiles) throws IOException {
+    private int run(int containerIndex, int documentStartIndex, int numberOfFiles) throws IOException {
         int count = 0;
         for (int documentIndex = documentStartIndex; documentIndex < documentStartIndex + numberOfFiles; documentIndex++) {
             TestDocumentContent content = this.dynamicConfigGenerator.buildTestDocumentContent(containerIndex, documentIndex);
             File pdfFile = new File(rootDir, content.getUuid() + ".pdf");
             File metaDataFile = new File(rootDir, content.getUuid() + ".json");
 
-            if (this.createPdfFile(pdfFile, content)) {
-                if (this.createMetaDataFile(metaDataFile, content)) {
-                    count++;
-                }
+            if (this.createPdfFile(pdfFile, content) && this.createMetaDataFile(metaDataFile, content)) {
+                count++;
             }
         }
         return count;
     }
 
-    public PdfTestDocumentCreator() {
+    private PdfTestDocumentCreator() {
         super();
     }
 
@@ -79,7 +76,7 @@ public class PdfTestDocumentCreator {
 
     //---------------------------------------------------------------------------------------------
 
-    public boolean createMetaDataFile(File file, TestDocumentContent content) {
+    private boolean createMetaDataFile(File file, TestDocumentContent content) {
         OutputStream outputStream;
         try {
             outputStream = new FileOutputStream(file);
@@ -101,7 +98,7 @@ public class PdfTestDocumentCreator {
         return true;
     }
 
-    public boolean createPdfFile(File file, TestDocumentContent content) {
+    private boolean createPdfFile(File file, TestDocumentContent content) {
         OutputStream outputStream;
         try {
             outputStream = new FileOutputStream(file);
@@ -117,7 +114,7 @@ public class PdfTestDocumentCreator {
         } finally {
             try {
                 outputStream.close();
-            } catch (IOException e) {
+            } catch (IOException ignored) {
             }
         }
         return true;
@@ -141,8 +138,8 @@ public class PdfTestDocumentCreator {
             document.add(new Paragraph("Time Millis = " + content.getTime()));
             document.add(new Paragraph("Date = " + content.getDate()));
 
-            for (String key : content.metaData.keySet()) {
-                document.add(new Paragraph(key + " = " + content.metaData.get(key)));
+            for (String key : content.getMetaData().keySet()) {
+                document.add(new Paragraph(key + " = " + content.getMetaData().get(key)));
             }
             document.add(new Paragraph("-----------------------------------------------------------------------"));
 
@@ -156,7 +153,7 @@ public class PdfTestDocumentCreator {
         public File jsonFile;
         public File pdfFile;
 
-        public FilePair(File jsonFile, File pdfFile) {
+        FilePair(File jsonFile, File pdfFile) {
             this.jsonFile = jsonFile;
             this.pdfFile = pdfFile;
         }

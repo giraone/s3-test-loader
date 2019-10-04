@@ -7,8 +7,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AccountMetaData {
-    String uuid;
-    String displayName;
+
+    private String uuid;
+    private String displayName;
 
     public AccountMetaData() {
         super();

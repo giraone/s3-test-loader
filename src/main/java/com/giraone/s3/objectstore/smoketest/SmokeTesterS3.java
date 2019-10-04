@@ -3,7 +3,6 @@ package com.giraone.s3.objectstore.smoketest;
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.S3ClientOptions;
 import com.amazonaws.services.s3.model.*;
 import com.giraone.s3.objectstore.authentication.Authenticator;
 import com.giraone.s3.objectstore.config.ObjectStorageEnvironment;

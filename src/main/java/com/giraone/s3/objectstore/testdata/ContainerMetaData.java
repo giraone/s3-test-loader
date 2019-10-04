@@ -7,9 +7,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ContainerMetaData {
-    String uuid;
-    String type;
-    String title;
+
+    private String uuid;
+    private String type;
+    private String title;
 
     public ContainerMetaData() {
         super();

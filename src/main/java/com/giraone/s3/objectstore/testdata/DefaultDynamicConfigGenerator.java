@@ -8,18 +8,17 @@ import java.util.HashMap;
 import java.util.Random;
 
 public class DefaultDynamicConfigGenerator implements DynamicConfigGenerator {
-    static int MilliSecondsOfAYear = 1000 * 3600 * 24 * 365;
 
-    Random random = new Random();
+    private static int MilliSecondsOfAYear = 1000 * 3600 * 24 * 365;
+    private static Random random = new Random();
 
-    long startDate = System.currentTimeMillis() - MilliSecondsOfAYear * 2;
-    String dateFormat = "yyyy-MM-dd";
+    private long startDate = System.currentTimeMillis() - MilliSecondsOfAYear * 2;
 
-    public static final String[] TYPE_NAMES = new String[]{
+    private static final String[] TYPE_NAMES = new String[]{
             "Rechnungsbeleg", "Spendenquittung", "Sonstiger Beleg"
     };
 
-    public static final String[] PATH_NAMES = new String[]{
+    private static final String[] PATH_NAMES = new String[]{
             "Steuer 2014/Handwerkerrechnungen", "Steuer 2014/Arbeitsmittel",
             "Steuer 2014/Spendenquittungen", "Steuer 2014/Sonderausgaben", "Steuer 2014/Sonstige Einkünfte",
             "Steuer 2015/Handwerkerrechnungen", "Steuer 2015/Arbeitsmittel",
@@ -35,14 +34,13 @@ public class DefaultDynamicConfigGenerator implements DynamicConfigGenerator {
     }
 
     public TestDocumentContent buildTestDocumentContent(int containerIndex, int documentIndex) {
-        long time = startDate + random.nextInt(MilliSecondsOfAYear);
-        Date date = new Date(time);
-        String dateString = new SimpleDateFormat(dateFormat).format(date);
-        int taxYear = random.nextInt(1) + 2014;
-        String type = TYPE_NAMES[documentIndex % TYPE_NAMES.length];
-        String title = type + "-" + dateString + "-" + String.format("%06d", documentIndex) + ".pdf";
+        final long time = startDate + random.nextInt(MilliSecondsOfAYear);
+        final String dateString = new SimpleDateFormat("yyyy-MM-dd").format(new Date(time));
+        final int taxYear = random.nextInt(1) + 2014;
+        final String type = TYPE_NAMES[documentIndex % TYPE_NAMES.length];
+        final String title = type + "-" + dateString + "-" + String.format("%06d", documentIndex) + ".pdf";
 
-        HashMap<String, String> metaData = new HashMap<String, String>();
+        final HashMap<String, String> metaData = new HashMap<>();
         metaData.put("title", title);
         metaData.put("status", "ADDED");
         metaData.put("taxYear", Integer.toString(taxYear));

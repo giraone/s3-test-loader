@@ -1,7 +1,9 @@
 {
   "service_endpoint": "http://localhost:9000",
-  "project": "",
   "username": "user",
   "password": "password",
-  "prefix_with_bucket_name": true
+  "prefix_with_bucket_name": false,
+  "bucket_for_smoke_test": "test-001",
+  "bucket_for_load_test": "test-001",
+  "folder_for_load_test": "load-0001"
 }
