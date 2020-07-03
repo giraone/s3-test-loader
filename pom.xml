@@ -24,7 +24,7 @@
 		<commons.cli.version>1.4</commons.cli.version>
 		<commons.codec.version>1.13</commons.codec.version>
 		<junit.version>4.12</junit.version>
-		<log4j.version>2.12.1</log4j.version>
+		<log4j.version>2.13.3</log4j.version>
 	</properties>
 
 	<dependencies>
