@@ -18,7 +18,7 @@
 
 		<aws.s3.version>1.12.261</aws.s3.version>
 		<metrics.version>4.0.5</metrics.version>
-		<itextpdf.version>5.5.13.1</itextpdf.version>
+		<itextpdf.version>5.5.13.3</itextpdf.version>
 
 		<jackson.version>2.13.4.1</jackson.version>
 		<commons.cli.version>1.4</commons.cli.version>
