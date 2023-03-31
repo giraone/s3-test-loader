@@ -20,7 +20,7 @@
 		<metrics.version>4.0.5</metrics.version>
 		<itextpdf.version>5.5.13.1</itextpdf.version>
 
-		<jackson.version>2.13.4.1</jackson.version>
+		<jackson.version>2.13.4.2</jackson.version>
 		<commons.cli.version>1.4</commons.cli.version>
 		<commons.codec.version>1.13</commons.codec.version>
 		<junit.version>4.13.1</junit.version>
